@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameDev Journey — Career Portfolio & Developer Dashboard</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="/static/css/design-system.css">
+  <link rel="stylesheet" href="/static/css/hud-components.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="stylesheet" href="/static/css/portfolio-view.css">
+</head>
+<body>
+  <!-- Ambient CRT Scanline Overlay -->
+  <div class="crt-scanlines"></div>
+
+  <!-- Interactive Cyber Particles Canvas -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Top HUD Status & Navigation Bar -->
+  <header class="hud-header" id="main-hud-bar" style="display: none;">
+    <div class="hud-brand" onclick="window.appController.showDashboardView()">
+      <img src="/static/assets/logo_hud.svg" alt="HUD Logo" class="hud-logo-icon">
+      <div class="hud-brand-title">GAMEDEV <span>JOURNEY</span></div>
+      <div class="hud-brand-badge">2.0 CORE</div>
+    </div>
+
+    <!-- Live Level & XP Progress Meter -->
+    <div class="hud-user-stats">
+      <div class="hud-level-badge">
+        <span class="hud-level-label">OPERATIVE</span>
+        <span class="hud-level-value">LVL 1</span>
+      </div>
+
+      <div class="hud-xp-container">
+        <div class="hud-xp-labels">
+          <span class="player-name-hud" style="color: var(--neon-cyan); font-weight: 600;">DEVELOPER</span>
+          <span><span class="hud-xp-current">0</span> / <span class="hud-xp-next">1,000</span> XP</span>
+        </div>
+        <div class="hud-xp-bar">
+          <div class="hud-xp-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD Actions -->
+    <div class="hud-actions">
+      <button class="btn-icon-toggle active" id="btn-toggle-sfx" title="Toggle Procedural SFX">
+        <span>🔊</span> SFX: ON
+      </button>
+      <button class="btn-cyber btn-cyber-purple btn-cyber-sm" id="btn-share-profile">
+        <span>🔗</span> SHARE MY PROFILE
+      </button>
+      <button class="btn-cyber btn-cyber-primary btn-cyber-sm" id="btn-toggle-view">
+        <span>👁️</span> LIVE PORTFOLIO
+      </button>
+      <button class="btn-cyber btn-cyber-danger btn-cyber-sm btn-logout-trigger">
+        <span>🚪</span> LOGOUT
+      </button>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <!-- 1. AUTHENTICATION VIEW (Sign Up & Login)                          -->
+  <!-- ================================================================= -->
+  <main id="auth-view" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; position: relative; z-index: 10;">
+    <div class="cyber-card" style="max-width: 460px; width: 100%; box-shadow: 0 0 40px rgba(0, 243, 255, 0.2); border-color: var(--border-active);">
+      
+      <div style="text-align: center; margin-bottom: 28px;">
+        <img src="/static/assets/logo_hud.svg" alt="Logo" style="width: 58px; height: 58px; margin-bottom: 12px; filter: drop-shadow(0 0 10px var(--neon-cyan));">
+        <h1 style="font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 2px; color: #fff;">
+          GAMEDEV <span style="color: var(--neon-cyan);">JOURNEY</span>
+        </h1>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+          Futuristic Portfolio &amp; Career Dashboard
+        </p>
+      </div>
+
+      <!-- Login Form Box -->
+      <div id="box-login">
+        <div class="cyber-card-header" style="margin-bottom: 16px;">
+          <span class="cyber-card-title">ACCESS TERMINAL // LOGIN</span>
+        </div>
+
+        <form id="form-login">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <input type="email" id="login-email" class="cyber-input" placeholder="developer@studio.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input type="password" id="login-password" class="cyber-input" placeholder="••••••••••••" required>
+          </div>
+          <button type="submit" class="btn-cyber btn-cyber-primary" style="width: 100%; margin-top: 10px;">
+            AUTHENTICATE &amp; ENTER
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-secondary);">
+          Don't have an operative account? 
+          <a href="#" id="btn-switch-to-signup" style="color: var(--neon-cyan); font-weight: 600; text-decoration: none;">Create Account</a>
+        </div>
+      </div>
+
+      <!-- Sign Up Form Box -->
+      <div id="box-signup" style="display: none;">
+        <div class="cyber-card-header" style="margin-bottom: 16px;">
+          <span class="cyber-card-title">NEW OPERATIVE // SIGN UP</span>
+        </div>
+
+        <form id="form-signup">
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email Address</label>
+            <input type="email" id="signup-email" class="cyber-input" placeholder="developer@studio.com" required>
+            <span class="form-hint">Email will be your unique operative identifier.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input type="password" id="signup-password" class="cyber-input" placeholder="••••••••••••" minlength="6" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-confirm-password">Confirm Password</label>
+            <input type="password" id="signup-confirm-password" class="cyber-input" placeholder="••••••••••••" minlength="6" required>
+          </div>
+
+          <div style="background: rgba(0, 243, 255, 0.05); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 10px; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px;">
+            🔒 <strong>Strict Clean Slate:</strong> Your profile starts completely empty. No sample or fake data is pre-populated.
+          </div>
+
+          <button type="submit" class="btn-cyber btn-cyber-purple" style="width: 100%;">
+            CREATE ACCOUNT &amp; INITIALIZE PROFILE
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-secondary);">
+          Already have an account? 
+          <a href="#" id="btn-switch-to-login" style="color: var(--neon-purple); font-weight: 600; text-decoration: none;">Access Terminal</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- 2. PRIVATE DASHBOARD VIEW (10 Sections Management)                -->
+  <!-- ================================================================= -->
+  <div id="dashboard-view" class="dashboard-container" style="display: none; position: relative; z-index: 10;">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-heading">SYSTEM NAVIGATION</div>
+
+      <button class="nav-tab-btn active" data-tab="profile">
+        <span class="nav-tab-icon">👤</span> My Profile
+      </button>
+
+      <button class="nav-tab-btn" data-tab="resume">
+        <span class="nav-tab-icon">📄</span> Resume
+      </button>
+
+      <button class="nav-tab-btn" data-tab="skills">
+        <span class="nav-tab-icon">⚡</span> Skills
+      </button>
+
+      <button class="nav-tab-btn" data-tab="videos">
+        <span class="nav-tab-icon">🎬</span> Gameplay Videos
+        <span class="nav-tab-badge" id="badge-videos">0</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="jams">
+        <span class="nav-tab-icon">🕹️</span> Game Jams
+        <span class="nav-tab-badge" id="badge-jams">0</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="achievements">
+        <span class="nav-tab-icon">🏆</span> Achievements
+        <span class="nav-tab-badge" id="badge-achievements">0</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="socials">
+        <span class="nav-tab-icon">🌐</span> Social Links
+      </button>
+
+      <button class="nav-tab-btn" data-tab="gdd">
+        <span class="nav-tab-icon">💡</span> My Game Project Idea
+      </button>
+
+      <div class="sidebar-heading" style="margin-top: 14px;">SECURITY &amp; SESSION</div>
+
+      <button class="nav-tab-btn" data-tab="account">
+        <span class="nav-tab-icon">⚙️</span> Account
+      </button>
+
+      <button class="nav-tab-btn btn-logout-trigger" style="color: var(--neon-danger);">
+        <span class="nav-tab-icon">🚪</span> Logout
+      </button>
+    </aside>
+
+    <!-- Main Content Pane -->
+    <main class="dashboard-main">
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 1: My Profile                                              -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane active" id="pane-profile">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">MY PROFILE</h2>
+            <p class="pane-desc">Manage your core professional identity and career information.</p>
+          </div>
+        </div>
+
+        <!-- Dedicated Profile Name Banner as required -->
+        <div class="profile-name-banner">
+          <div>
+            <div class="profile-name-label">PROFILE NAME</div>
+            <div class="profile-name-val" id="profile-name-val-display">[ NO PROFILE NAME SET ]</div>
+          </div>
+          <button class="btn-cyber btn-cyber-primary" id="btn-edit-profile-name">
+            [ EDIT ]
+          </button>
+        </div>
+
+        <!-- Public Profile Link Banner -->
+        <div class="cyber-card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(0, 243, 255, 0.06), rgba(176, 38, 255, 0.04)); border-color: var(--neon-cyan);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--neon-cyan); letter-spacing: 1.5px;">YOUR UNIQUE PUBLIC PROFILE URL</div>
+              <div id="pub-profile-link-preview" style="font-family: var(--font-mono); font-size: 1rem; color: #fff; margin-top: 4px; word-break: break-all;">/profile/username</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" class="btn-cyber btn-cyber-purple btn-cyber-sm" id="btn-copy-public-link">📋 COPY LINK</button>
+              <a href="#" target="_blank" class="btn-cyber btn-cyber-primary btn-cyber-sm" id="btn-view-public-link">↗ VIEW PUBLIC</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editable Profile Fields -->
+        <div class="cyber-card">
+          <div class="cyber-card-header">
+            <span class="cyber-card-title">PERSONAL &amp; PROFESSIONAL DETAILS</span>
+          </div>
+
+          <form id="form-profile-details">
+            <div class="form-group">
+              <label class="form-label" for="input-prof-title">Professional Title</label>
+              <input type="text" id="input-prof-title" class="cyber-input" placeholder="e.g. Lead Gameplay Engineer / Technical Artist">
+              <span class="form-hint">Your primary role or specialization.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-about-me">About Me</label>
+              <textarea id="input-about-me" class="cyber-textarea" placeholder="Describe your background, philosophy, and passion for game development..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-career-goal">Career Goal</label>
+              <input type="text" id="input-career-goal" class="cyber-input" placeholder="e.g. Architect high-speed physics and combat systems for AAA action games.">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-education">Education</label>
+              <textarea id="input-education" class="cyber-textarea" style="min-height: 80px;" placeholder="Degrees, universities, specializations, or relevant coursework..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-other-details">Other Personal / Professional Details</label>
+              <textarea id="input-other-details" class="cyber-textarea" style="min-height: 70px;" placeholder="Location, languages, availability, or any other notes..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-cyber btn-cyber-primary">
+              SAVE PROFILE DETAILS
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 2: Resume (Upload & AI Extraction)                         -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-resume">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">RESUME UPLOAD &amp; AI PROFILE EXTRACTION</h2>
+            <p class="pane-desc">Upload your PDF resume to extract genuine profile details without invention.</p>
+          </div>
+        </div>
+
+        <div class="cyber-card" style="margin-bottom: 24px;">
+          <div class="dropzone-box" id="dropzone-resume">
+            <div class="dropzone-icon">📄</div>
+            <div class="empty-state-title">UPLOAD RESUME (PDF)</div>
+            <div class="empty-state-sub">
+              Drag and drop your PDF resume here, or click to browse.
+            </div>
+            <button type="button" class="btn-cyber btn-cyber-primary">SELECT PDF RESUME</button>
+            <input type="file" id="input-resume-file" accept=".pdf" style="display: none;">
+          </div>
+          <div id="resume-upload-status" style="display: none; margin-top: 14px; color: var(--neon-cyan); font-family: var(--font-mono); font-size: 0.85rem; text-align: center;"></div>
+        </div>
+
+        <div class="cyber-card">
+          <div class="cyber-card-header">
+            <span class="cyber-card-title">STRICT ZERO-HALLUCINATION POLICY</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;">
+            The AI parser reads the text of your uploaded resume and strictly extracts information actually found in the document.
+            It will <strong>never invent</strong> skills, experience, projects, achievements, education, game jams, certifications, or personal details.
+            You will always have an opportunity to review and edit all extracted data before applying it to your profile.
+          </p>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 3: Skills                                                  -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-skills">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">TECHNICAL SKILLS</h2>
+            <p class="pane-desc">Manage your game engines, programming languages, DCC tools, and frameworks.</p>
+          </div>
+        </div>
+
+        <div class="cyber-card" style="margin-bottom: 24px;">
+          <form id="form-add-skill" style="display: flex; gap: 12px; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+              <label class="form-label" for="input-new-skill">Add Technical Skill</label>
+              <input type="text" id="input-new-skill" class="cyber-input" placeholder="e.g. Unity, Unreal Engine 5, C++, HLSL, Blender, Git..." required>
+            </div>
+            <button type="submit" class="btn-cyber btn-cyber-primary">+ ADD SKILL</button>
+          </form>
+        </div>
+
+        <div class="cyber-card">
+          <div class="cyber-card-header">
+            <span class="cyber-card-title">ACTIVE SKILLS MATRIX</span>
+          </div>
+          <div id="skills-list-container" class="skills-wrapper">
+            <!-- Dynamic skills rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 4: Gameplay Videos                                         -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-videos">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">GAMEPLAY VIDEOS</h2>
+            <p class="pane-desc">Upload, stream, and manage video showcases of your games and prototypes.</p>
+          </div>
+          <button class="btn-cyber btn-cyber-primary" id="btn-upload-video">
+            + UPLOAD GAMEPLAY VIDEO
+          </button>
+        </div>
+
+        <div id="videos-grid-container" class="videos-grid">
+          <!-- Dynamic videos rendered here -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 5: Game Jams                                               -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-jams">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">GAME JAMS</h2>
+            <div style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--neon-cyan); margin-top: 4px;">
+              Total Game Jams: <span id="total-jams-counter" style="font-weight: 700; font-size: 1.2rem; color: #fff;">0</span>
+            </div>
+          </div>
+          <button class="btn-cyber btn-cyber-purple" id="btn-add-jam">
+            + ADD GAME JAM
+          </button>
+        </div>
+
+        <div id="jams-list-container" class="jams-list">
+          <!-- Dynamic game jams rendered here -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 6: Achievements                                            -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-achievements">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">ACHIEVEMENTS</h2>
+            <p class="pane-desc">Record your honors, certifications, and upload verifiable certificate images.</p>
+          </div>
+          <button class="btn-cyber btn-cyber-primary" id="btn-add-achievement">
+            + ADD ACHIEVEMENT
+          </button>
+        </div>
+
+        <div id="achievements-grid-container" class="achievements-grid">
+          <!-- Dynamic achievements rendered here -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 7: Social Links                                            -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-socials">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">SOCIAL LINKS</h2>
+            <p class="pane-desc">Direct links to your public developer profiles and repositories.</p>
+          </div>
+        </div>
+
+        <div class="cyber-card">
+          <form id="form-social-links">
+            <div class="form-group">
+              <label class="form-label" for="input-social-github">GitHub</label>
+              <input type="url" id="input-social-github" class="cyber-input" placeholder="Enter GitHub URL (e.g. https://github.com/username)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-social-linkedin">LinkedIn</label>
+              <input type="url" id="input-social-linkedin" class="cyber-input" placeholder="Enter LinkedIn URL (e.g. https://linkedin.com/in/username)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-social-itchio">itch.io</label>
+              <input type="url" id="input-social-itchio" class="cyber-input" placeholder="Enter itch.io URL (e.g. https://username.itch.io)">
+            </div>
+
+            <button type="submit" class="btn-cyber btn-cyber-primary">
+              SAVE SOCIAL LINKS
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 8: My Game Project Idea / GDD                             -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-gdd">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">MY NEXT GAME PROJECT IDEA</h2>
+            <p class="pane-desc">Upload, store, and manage your Game Design Document (GDD) as a PDF.</p>
+          </div>
+        </div>
+
+        <div class="cyber-card" id="gdd-container">
+          <!-- Active GDD card or dropzone rendered here -->
+        </div>
+        <input type="file" id="input-gdd-file" accept=".pdf" style="display: none;">
+      </section>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- TAB 9: Account & Security                                      -->
+      <!-- ------------------------------------------------------------- -->
+      <section class="tab-pane" id="pane-account">
+        <div class="pane-header">
+          <div>
+            <h2 class="pane-title">OPERATIVE ACCOUNT</h2>
+            <p class="pane-desc">Manage your authentication credentials and session isolation.</p>
+          </div>
+        </div>
+
+        <div class="cyber-card">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+              <span class="form-label">OPERATIVE EMAIL</span>
+              <div id="account-email-val" style="font-family: var(--font-mono); font-size: 1.1rem; color: #fff; margin-top: 4px;"></div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+              <span class="form-label">PUBLIC PROFILE USERNAME SLUG</span>
+              <form id="form-account-update-username" style="display: flex; gap: 10px; margin-top: 6px; max-width: 500px;">
+                <input type="text" id="input-account-username" class="cyber-input" placeholder="e.g. alex-mercer" pattern="^[a-zA-Z0-9_-]{3,30}$" required>
+                <button type="submit" class="btn-cyber btn-cyber-primary" style="white-space: nowrap;">UPDATE HANDLE</button>
+              </form>
+              <span class="form-hint">Unique identifier for your public URL: <code>/profile/&lt;username&gt;</code>. 3-30 letters, numbers, hyphens, or underscores.</span>
+            </div>
+
+            <div style="background: rgba(0, 243, 255, 0.05); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 14px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
+              🛡️ <strong>Multi-Tenant Data Isolation Active:</strong> All profile data, uploaded gameplay videos, certificate images, and GDD documents are cryptographically and relationally bound to your user ID. User A cannot view User B's private assets.
+            </div>
+
+            <div>
+              <button class="btn-cyber btn-cyber-danger btn-logout-trigger">
+                LOGOUT FROM THIS DEVICE
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- 3. LIVE CYBER PORTFOLIO VIEW (Public-style Showcase)              -->
+  <!-- ================================================================= -->
+  <main id="portfolio-view" style="display: none; position: relative; z-index: 10;">
+    <div id="portfolio-view-content">
+      <!-- Dynamically rendered by PortfolioViewController -->
+    </div>
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- MODALS                                                            -->
+  <!-- ================================================================= -->
+
+  <!-- Modal: Edit Profile Name -->
+  <div class="modal-overlay" id="modal-edit-profile-name">
+    <div class="modal-box">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title">EDIT PROFILE NAME</span>
+      </div>
+      <form id="form-edit-profile-name">
+        <div class="form-group">
+          <label class="form-label" for="input-modal-profile-name">Operative Profile Name</label>
+          <input type="text" id="input-modal-profile-name" class="cyber-input" placeholder="e.g. Alex Mercer" required>
+          <span class="form-hint">This name will be displayed throughout your portfolio and gaming HUD.</span>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn-cyber btn-modal-cancel">CANCEL</button>
+          <button type="submit" class="btn-cyber btn-cyber-primary">SAVE PROFILE NAME</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Review Extracted Resume Data -->
+  <div class="modal-overlay" id="modal-review-resume">
+    <div class="modal-box modal-box-lg">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title">REVIEW EXTRACTED RESUME DATA</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+        The AI extracted the following verified information from your resume. Review and edit any field before applying to your profile.
+      </p>
+      <form id="form-apply-resume">
+        <div class="form-group">
+          <label class="form-label" for="extracted-name">Profile Name</label>
+          <input type="text" id="extracted-name" class="cyber-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="extracted-title">Professional Title</label>
+          <input type="text" id="extracted-title" class="cyber-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="extracted-about">Summary / About Me</label>
+          <textarea id="extracted-about" class="cyber-textarea" style="min-height: 80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="extracted-skills">Skills (Comma-separated)</label>
+          <textarea id="extracted-skills" class="cyber-textarea" style="min-height: 70px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="extracted-education">Education</label>
+          <textarea id="extracted-education" class="cyber-textarea" style="min-height: 70px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="extracted-experience">Experience</label>
+          <textarea id="extracted-experience" class="cyber-textarea" style="min-height: 80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="extracted-achievements">Achievements &amp; Honors</label>
+          <textarea id="extracted-achievements" class="cyber-textarea" style="min-height: 70px;"></textarea>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+          <div class="form-group">
+            <label class="form-label" for="extracted-github">GitHub</label>
+            <input type="text" id="extracted-github" class="cyber-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="extracted-linkedin">LinkedIn</label>
+            <input type="text" id="extracted-linkedin" class="cyber-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="extracted-itchio">itch.io</label>
+            <input type="text" id="extracted-itchio" class="cyber-input">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn-cyber btn-modal-cancel">DISCARD</button>
+          <button type="submit" class="btn-cyber btn-cyber-primary">APPLY TO PROFILE</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Game Jam -->
+  <div class="modal-overlay" id="modal-jam">
+    <div class="modal-box">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title" id="jam-modal-title">ADD GAME JAM</span>
+      </div>
+      <form id="form-jam">
+        <input type="hidden" id="input-jam-id">
+        <div class="form-group">
+          <label class="form-label" for="input-jam-name">Game Jam Name</label>
+          <input type="text" id="input-jam-name" class="cyber-input" placeholder="e.g. GMTK Game Jam 2026" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="input-jam-event">Event / Platform</label>
+            <input type="text" id="input-jam-event" class="cyber-input" placeholder="e.g. itch.io / Ludum Dare">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-jam-date">Date</label>
+            <input type="text" id="input-jam-date" class="cyber-input" placeholder="e.g. July 2026">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="input-jam-game">Game / Project Created</label>
+            <input type="text" id="input-jam-game" class="cyber-input" placeholder="e.g. Chrono Shift: Paradox">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-jam-role">Role</label>
+            <input type="text" id="input-jam-role" class="cyber-input" placeholder="e.g. Solo Developer / Lead C++">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-jam-desc">Description</label>
+          <textarea id="input-jam-desc" class="cyber-textarea" placeholder="Theme interpretation, mechanics developed, physics or gameplay systems..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-jam-link">Game Jam Link</label>
+          <input type="url" id="input-jam-link" class="cyber-input" placeholder="https://username.itch.io/game-title">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn-cyber btn-modal-cancel">CANCEL</button>
+          <button type="submit" class="btn-cyber btn-cyber-purple">SAVE GAME JAM</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Achievement -->
+  <div class="modal-overlay" id="modal-achievement">
+    <div class="modal-box">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title" id="ach-modal-title">ADD ACHIEVEMENT</span>
+      </div>
+      <form id="form-achievement">
+        <input type="hidden" id="input-ach-id">
+        <div class="form-group">
+          <label class="form-label" for="input-ach-title">Achievement Title</label>
+          <input type="text" id="input-ach-title" name="title" class="cyber-input" placeholder="e.g. Unity Certified Professional Programmer" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="input-ach-org">Organization / Event</label>
+            <input type="text" id="input-ach-org" name="organization" class="cyber-input" placeholder="e.g. Unity Technologies / Global Game Jam">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-ach-cat">Category</label>
+            <select id="input-ach-cat" name="category" class="cyber-select">
+              <option value="Certification">Certification</option>
+              <option value="Competition Award">Competition Award</option>
+              <option value="Academic Honor">Academic Honor</option>
+              <option value="Industry Milestone">Industry Milestone</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-ach-date">Date</label>
+          <input type="text" id="input-ach-date" name="date" class="cyber-input" placeholder="e.g. August 2026">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-ach-desc">Description</label>
+          <textarea id="input-ach-desc" name="description" class="cyber-textarea" placeholder="Details regarding this achievement or award..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-ach-cert">Certificate Image Upload</label>
+          <input type="file" id="input-ach-cert" name="certificate" class="cyber-input" accept="image/*,application/pdf">
+          <span class="form-hint">Upload PNG, JPG, or PDF proof certificate.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-ach-visibility">Visibility</label>
+          <select id="input-ach-visibility" name="is_public" class="cyber-select">
+            <option value="1">Public (Show on shared profile)</option>
+            <option value="0">Private (Owner only)</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn-cyber btn-modal-cancel">CANCEL</button>
+          <button type="submit" class="btn-cyber btn-cyber-primary">SAVE ACHIEVEMENT</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Upload Gameplay Video -->
+  <div class="modal-overlay" id="modal-video-upload">
+    <div class="modal-box">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title">UPLOAD GAMEPLAY VIDEO</span>
+      </div>
+      <form id="form-video">
+        <div class="form-group">
+          <label class="form-label" for="input-video-title">Video Title</label>
+          <input type="text" id="input-video-title" name="title" class="cyber-input" placeholder="e.g. Cyber Runner — Boss Battle Gameplay" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-video-desc">Short Description</label>
+          <textarea id="input-video-desc" name="description" class="cyber-textarea" placeholder="Describe the mechanics, shader techniques, or AI behaviors showcased..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-video-file">Video File</label>
+          <input type="file" id="input-video-file" name="video" class="cyber-input" accept="video/mp4,video/webm,video/ogg,video/quicktime" required>
+          <span class="form-hint">Supported formats: MP4, WebM, MOV. Max size: 200MB.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-video-visibility">Visibility</label>
+          <select id="input-video-visibility" name="is_public" class="cyber-select">
+            <option value="1">Public (Show on shared profile)</option>
+            <option value="0">Private (Owner only)</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn-cyber btn-modal-cancel">CANCEL</button>
+          <button type="submit" class="btn-cyber btn-cyber-primary">UPLOAD VIDEO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Video Title & Description -->
+  <div class="modal-overlay" id="modal-video-edit">
+    <div class="modal-box">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title">EDIT VIDEO DETAILS</span>
+      </div>
+      <form id="form-video-edit">
+        <input type="hidden" id="input-edit-video-id">
+        <div class="form-group">
+          <label class="form-label" for="input-edit-video-title">Video Title</label>
+          <input type="text" id="input-edit-video-title" class="cyber-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-edit-video-desc">Description</label>
+          <textarea id="input-edit-video-desc" class="cyber-textarea"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn-cyber btn-modal-cancel">CANCEL</button>
+          <button type="submit" class="btn-cyber btn-cyber-primary">SAVE CHANGES</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Share My Profile -->
+  <div class="modal-overlay" id="modal-share-profile">
+    <div class="modal-box">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title">SHARE MY PROFILE // PUBLIC RECRUITER LINK</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+        Anyone with this link can view your portfolio in read-only mode without logging in. All editing controls and private data remain strictly protected.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">YOUR UNIQUE PUBLIC PROFILE URL</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="share-profile-url-display" class="cyber-input" readonly style="font-family: var(--font-mono); color: var(--neon-cyan);">
+          <button type="button" class="btn-cyber btn-cyber-primary" id="btn-copy-share-url" style="white-space: nowrap;">
+            📋 COPY LINK
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-start; gap: 10px; margin-bottom: 24px;">
+        <a href="#" target="_blank" class="btn-cyber btn-cyber-purple btn-cyber-sm" id="btn-open-share-tab">
+          ↗ OPEN IN NEW TAB
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 18px;">
+        <label class="form-label">CUSTOMIZE USERNAME SLUG</label>
+        <form id="form-modal-update-username" style="display: flex; gap: 8px; margin-top: 6px;">
+          <input type="text" id="input-modal-username" class="cyber-input" placeholder="e.g. alex-mercer" pattern="^[a-zA-Z0-9_-]{3,30}$" required>
+          <button type="submit" class="btn-cyber btn-cyber-sm" style="white-space: nowrap;">UPDATE HANDLE</button>
+        </form>
+        <span class="form-hint">Changing this will immediately update your public URL: <code>/profile/&lt;username&gt;</code>.</span>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn-cyber btn-modal-cancel">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Fullscreen Certificate Lightbox -->
+  <div class="modal-overlay" id="modal-lightbox">
+    <div class="modal-box modal-box-lg" style="text-align: center;">
+      <button class="modal-close-btn">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title" id="lightbox-title">CERTIFICATE VIEWER</span>
+      </div>
+      <div style="max-height: 70vh; overflow: auto; display: flex; align-items: center; justify-content: center; background: #000; border-radius: 4px; padding: 10px;">
+        <img id="lightbox-img" src="" alt="Certificate Lightbox" style="max-width: 100%; max-height: 65vh; object-fit: contain;">
+      </div>
+      <div style="margin-top: 16px;">
+        <button type="button" class="btn-cyber btn-modal-cancel">CLOSE VIEWER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notification System -->
+  <div id="toast-container"></div>
+
+  <!-- JavaScript Modules -->
+  <script src="/static/js/audio-engine.js"></script>
+  <script src="/static/js/particles.js"></script>
+  <script src="/static/js/api-client.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+  <script src="/static/js/portfolio-view.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

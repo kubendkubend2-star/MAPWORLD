@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  {% if found %}
+  <title>{{ og.title }}</title>
+  <meta name="description" content="{{ og.description }}">
+  
+  <!-- OpenGraph Meta Tags for Rich Social Previews (Discord, LinkedIn, X/Twitter) -->
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="{{ og.title }}">
+  <meta property="og:description" content="{{ og.description }}">
+  <meta property="og:url" content="{{ og.url }}">
+  <meta property="og:site_name" content="GameDev Journey">
+  <meta property="og:image" content="/static/assets/logo_hud.svg">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ og.title }}">
+  <meta name="twitter:description" content="{{ og.description }}">
+  <meta name="twitter:image" content="/static/assets/logo_hud.svg">
+  {% else %}
+  <title>Operative Not Found | GameDev Journey</title>
+  {% endif %}
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/static/css/design-system.css">
+  <link rel="stylesheet" href="/static/css/hud-components.css">
+  <link rel="stylesheet" href="/static/css/portfolio-view.css">
+
+  <style>
+    .public-dossier-banner {
+      background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), rgba(176, 38, 255, 0.08));
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+      color: var(--neon-cyan);
+    }
+    .public-cta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .public-cta-badge:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+    .loader-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      gap: 16px;
+      color: var(--neon-cyan);
+      font-family: var(--font-mono);
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient CRT Scanline Overlay -->
+  <div class="crt-scanlines"></div>
+
+  <!-- Interactive Cyber Particles Canvas -->
+  <canvas id="particles-canvas"></canvas>
+
+  {% if not found %}
+  <!-- 404 OPERATIVE NOT FOUND VIEW -->
+  <main style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 10;">
+    <div class="cyber-card" style="max-width: 520px; width: 100%; text-align: center; border-color: var(--neon-danger);">
+      <div style="font-size: 3rem; margin-bottom: 12px;">⚠️</div>
+      <h1 style="font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 2px; color: var(--neon-danger); margin-bottom: 12px;">
+        OPERATIVE NOT FOUND
+      </h1>
+      <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 24px;">
+        No public profile exists for operative identifier: <code style="color: #fff; background: var(--bg-surface); padding: 2px 8px; border-radius: 4px;">{{ username }}</code>.
+        The link may be mistyped or the developer may have updated their handle.
+      </p>
+      <a href="/" class="btn-cyber btn-cyber-primary">RETURN TO HOME TERMINAL</a>
+    </div>
+  </main>
+
+  {% else %}
+  <!-- Top Public HUD Bar -->
+  <header class="hud-header">
+    <a href="/" class="hud-brand" style="text-decoration: none;">
+      <img src="/static/assets/logo_hud.svg" alt="HUD Logo" class="hud-logo-icon">
+      <div class="hud-brand-title">GAMEDEV <span>JOURNEY</span></div>
+      <div class="hud-brand-badge">PUBLIC DOSSIER</div>
+    </a>
+
+    <!-- Live Level & XP Progress Meter -->
+    <div class="hud-user-stats" id="public-hud-stats" style="display: none;">
+      <div class="hud-level-badge">
+        <span class="hud-level-label">OPERATIVE</span>
+        <span class="hud-level-value" id="pub-hud-level">LVL 1</span>
+      </div>
+
+      <div class="hud-xp-container">
+        <div class="hud-xp-labels">
+          <span id="pub-hud-name" style="color: var(--neon-cyan); font-weight: 600;">DEVELOPER</span>
+          <span><span id="pub-hud-xp">0</span> XP</span>
+        </div>
+        <div class="hud-xp-bar">
+          <div class="hud-xp-fill" id="pub-hud-xp-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD Actions -->
+    <div class="hud-actions">
+      <button class="btn-icon-toggle active" id="btn-toggle-sfx" title="Toggle Procedural SFX">
+        <span>🔊</span> SFX: ON
+      </button>
+      <a href="/" class="btn-cyber btn-cyber-primary btn-cyber-sm">
+        CREATE YOUR PORTFOLIO
+      </a>
+    </div>
+  </header>
+
+  <!-- Public Dossier Read-Only Banner -->
+  <div class="public-dossier-banner">
+    <div>🛡️ VERIFIED RECRUITER DOSSIER // READ-ONLY MODE</div>
+    <a href="/" class="public-cta-badge">POWERED BY GAMEDEV JOURNEY ↗</a>
+  </div>
+
+  <!-- Main Public Portfolio Showcase -->
+  <main id="public-portfolio-content" style="position: relative; z-index: 10;">
+    <div class="loader-spinner" id="public-loader">
+      <div style="font-size: 2rem;">⚡</div>
+      <div>SYNCHRONIZING OPERATIVE DATA ARCHIVE...</div>
+    </div>
+  </main>
+
+  <!-- Modal: Fullscreen Certificate Lightbox -->
+  <div class="modal-overlay" id="modal-lightbox">
+    <div class="modal-box modal-box-lg" style="text-align: center;">
+      <button class="modal-close-btn" onclick="document.getElementById('modal-lightbox').classList.remove('open')">✕</button>
+      <div class="cyber-card-header">
+        <span class="cyber-card-title" id="lightbox-title">CERTIFICATE VIEWER</span>
+      </div>
+      <div style="max-height: 70vh; overflow: auto; display: flex; align-items: center; justify-content: center; background: #000; border-radius: 4px; padding: 10px;">
+        <img id="lightbox-img" src="" alt="Certificate Lightbox" style="max-width: 100%; max-height: 65vh; object-fit: contain;">
+      </div>
+      <div style="margin-top: 16px;">
+        <button type="button" class="btn-cyber btn-modal-cancel" onclick="document.getElementById('modal-lightbox').classList.remove('open')">CLOSE VIEWER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/audio-engine.js"></script>
+  <script src="/static/js/particles.js"></script>
+  <script>
+    const USERNAME = "{{ username }}";
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function viewCertificate(url, title) {
+      if (window.cyberAudio) window.cyberAudio.playModal();
+      document.getElementById('lightbox-title').textContent = title || 'CERTIFICATE';
+      document.getElementById('lightbox-img').src = url;
+      document.getElementById('modal-lightbox').classList.add('open');
+    }
+
+    // Audio SFX toggle
+    const muteBtn = document.getElementById('btn-toggle-sfx');
+    if (muteBtn && window.cyberAudio) {
+      if (window.cyberAudio.muted) {
+        muteBtn.classList.remove('active');
+        muteBtn.innerHTML = '<span>🔇</span> SFX: OFF';
+      }
+      muteBtn.addEventListener('click', () => {
+        const muted = window.cyberAudio.toggleMute();
+        if (muted) {
+          muteBtn.classList.remove('active');
+          muteBtn.innerHTML = '<span>🔇</span> SFX: OFF';
+        } else {
+          muteBtn.classList.add('active');
+          muteBtn.innerHTML = '<span>🔊</span> SFX: ON';
+          window.cyberAudio.playClick();
+        }
+      });
+    }
+
+    // Close lightbox on click outside
+    const lightboxModal = document.getElementById('modal-lightbox');
+    if (lightboxModal) {
+      lightboxModal.addEventListener('click', (e) => {
+        if (e.target === lightboxModal) lightboxModal.classList.remove('open');
+      });
+    }
+
+    async function loadPublicProfile() {
+      try {
+        const res = await fetch(`/api/public/profile/${USERNAME}`);
+        if (!res.ok) throw new Error('Operative not found.');
+        const data = await res.json();
+
+        const p = data.profile || {};
+        const jams = data.game_jams || [];
+        const vids = data.videos || [];
+        const achs = data.achievements || [];
+        const gdd = data.gdd;
+        const stats = data.stats || {};
+        const skills = p.skills || [];
+
+        // Update HUD stats
+        const hudStats = document.getElementById('public-hud-stats');
+        if (hudStats) {
+          hudStats.style.display = 'flex';
+          document.getElementById('pub-hud-level').textContent = `LVL ${stats.level || 1}`;
+          document.getElementById('pub-hud-name').textContent = p.profile_name || USERNAME.toUpperCase();
+          document.getElementById('pub-hud-xp').textContent = (stats.xp || 0).toLocaleString();
+          const xpPct = Math.min(100, Math.round(((stats.current_level_xp || 0) / (stats.next_level_xp || 1000)) * 100));
+          document.getElementById('pub-hud-xp-fill').style.width = `${xpPct}%`;
+        }
+
+        // Render Portfolio
+        const container = document.getElementById('public-portfolio-content');
+        container.innerHTML = `
+          <div class="portfolio-wrapper">
+            <!-- Hero Dossier Banner -->
+            <div class="portfolio-hero">
+              <div class="portfolio-hero-content">
+                <div class="portfolio-avatar-frame">
+                  <img src="/static/assets/default_avatar.svg" alt="Dev Avatar" class="portfolio-avatar-img">
+                </div>
+                <div class="portfolio-dev-meta">
+                  <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--neon-cyan); letter-spacing: 2px;">
+                    OPERATIVE // LVL ${stats.level || 1} • @${escapeHtml(USERNAME)}
+                  </div>
+                  <h1 class="portfolio-dev-name">${escapeHtml(p.profile_name || USERNAME)}</h1>
+                  <div class="portfolio-dev-title">${escapeHtml(p.professional_title || 'GAME DEVELOPER')}</div>
+                  ${p.career_goal ? `<div class="portfolio-dev-goal"><strong>MISSION OBJECTIVE:</strong> ${escapeHtml(p.career_goal)}</div>` : ''}
+
+                  <!-- Social Links -->
+                  <div class="portfolio-social-bar">
+                    ${p.github_url ? `<a href="${escapeHtml(p.github_url)}" target="_blank" rel="noopener" class="portfolio-social-link">💻 GITHUB</a>` : ''}
+                    ${p.linkedin_url ? `<a href="${escapeHtml(p.linkedin_url)}" target="_blank" rel="noopener" class="portfolio-social-link">💼 LINKEDIN</a>` : ''}
+                    ${p.itchio_url ? `<a href="${escapeHtml(p.itchio_url)}" target="_blank" rel="noopener" class="portfolio-social-link">🕹️ ITCH.IO</a>` : ''}
+                    ${(!p.github_url && !p.linkedin_url && !p.itchio_url) ? '<span style="font-size:0.8rem; color:var(--text-muted);">No social links provided.</span>' : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Character Dossier / About Me -->
+            <section class="portfolio-section">
+              <div class="portfolio-section-title">
+                <span>01</span> ABOUT &amp; BACKGROUND
+              </div>
+              <div class="portfolio-about-card">
+                ${p.about_me ? `<div>${escapeHtml(p.about_me).replace(/\n/g, '<br>')}</div>` : '<div class="cyber-empty-slot">ABOUT ME SECTION NOT DISCLOSED</div>'}
+                ${p.education ? `
+                  <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+                    <strong style="color: var(--neon-cyan); font-family: var(--font-mono); font-size: 0.85rem;">EDUCATION CREDENTIALS:</strong>
+                    <div style="margin-top: 6px; color: var(--text-secondary);">${escapeHtml(p.education).replace(/\n/g, '<br>')}</div>
+                  </div>
+                ` : ''}
+              </div>
+            </section>
+
+            <!-- Technical Skills -->
+            <section class="portfolio-section">
+              <div class="portfolio-section-title">
+                <span>02</span> CORE ARSENAL // SKILLS
+              </div>
+              <div class="cyber-card">
+                ${skills.length > 0 ? `
+                  <div class="skills-wrapper">
+                    ${skills.map(s => `<div class="skill-pill"><span>${escapeHtml(s)}</span></div>`).join('')}
+                  </div>
+                ` : '<div class="cyber-empty-slot">NO SKILLS LISTED</div>'}
+              </div>
+            </section>
+
+            <!-- Gameplay Videos Showcase -->
+            <section class="portfolio-section">
+              <div class="portfolio-section-title">
+                <span>03</span> GAMEPLAY &amp; PROTOTYPE HIGHLIGHTS
+              </div>
+              ${vids.length > 0 ? `
+                <div class="videos-grid">
+                  ${vids.map(v => `
+                    <div class="video-card">
+                      <div class="video-player-container">
+                        <video controls preload="metadata">
+                          <source src="${v.stream_url}" type="video/mp4">
+                        </video>
+                      </div>
+                      <div class="video-info">
+                        <div class="video-title">${escapeHtml(v.title)}</div>
+                        <div class="video-desc">${escapeHtml(v.description || '')}</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : '<div class="cyber-empty-slot">NO PUBLIC GAMEPLAY VIDEOS SHARED</div>'}
+            </section>
+
+            <!-- Game Jam Records -->
+            <section class="portfolio-section">
+              <div class="portfolio-section-title">
+                <span>04</span> GAME JAM EXPEDITIONS (${jams.length} TOTAL JAMS)
+              </div>
+              ${jams.length > 0 ? `
+                <div class="jams-list">
+                  ${jams.map(jam => `
+                    <div class="jam-card">
+                      <div style="flex: 1;">
+                        <div class="jam-name">${escapeHtml(jam.jam_name)}</div>
+                        <div class="jam-meta">
+                          ${jam.event_platform ? `<div class="jam-meta-item">EVENT: <span>${escapeHtml(jam.event_platform)}</span></div>` : ''}
+                          ${jam.date ? `<div class="jam-meta-item">DATE: <span>${escapeHtml(jam.date)}</span></div>` : ''}
+                          ${jam.game_created ? `<div class="jam-meta-item">GAME: <span>${escapeHtml(jam.game_created)}</span></div>` : ''}
+                          ${jam.role ? `<div class="jam-meta-item">ROLE: <span>${escapeHtml(jam.role)}</span></div>` : ''}
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">
+                          ${escapeHtml(jam.description || '')}
+                        </div>
+                        ${jam.jam_link ? `<a href="${escapeHtml(jam.jam_link)}" target="_blank" rel="noopener" class="portfolio-social-link" style="padding: 3px 10px; font-size: 0.75rem;">🌐 PLAY / INSPECT JAM ENTRY</a>` : ''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : '<div class="cyber-empty-slot">NO GAME JAMS LOGGED</div>'}
+            </section>
+
+            <!-- Achievements & Trophy Vault -->
+            <section class="portfolio-section">
+              <div class="portfolio-section-title">
+                <span>05</span> TROPHY VAULT // HONORS &amp; ACHIEVEMENTS
+              </div>
+              ${achs.length > 0 ? `
+                <div class="achievements-grid">
+                  ${achs.map(a => `
+                    <div class="achievement-card">
+                      <div class="achievement-badge">🏆</div>
+                      <div style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: #fff;">${escapeHtml(a.title)}</div>
+                      <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--neon-cyan); margin: 4px 0 8px;">
+                        ${escapeHtml(a.category || 'Milestone')} ${a.organization ? `• ${escapeHtml(a.organization)}` : ''} ${a.date ? `• ${escapeHtml(a.date)}` : ''}
+                      </div>
+                      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; flex: 1;">
+                        ${escapeHtml(a.description || '')}
+                      </div>
+                      ${a.certificate_url ? `
+                        <div style="margin-top: 10px;">
+                          <img src="${a.certificate_url}" class="cert-thumbnail" onclick="viewCertificate('${a.certificate_url}', '${escapeHtml(a.title)}')" alt="Certificate">
+                        </div>
+                      ` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              ` : '<div class="cyber-empty-slot">NO PUBLIC ACHIEVEMENTS LOGGED</div>'}
+            </section>
+
+            <!-- Next Game Project Idea (GDD) -->
+            ${gdd ? `
+              <section class="portfolio-section">
+                <div class="portfolio-section-title">
+                  <span>06</span> NEXT GAME PROJECT DESIGN DOCUMENT (GDD)
+                </div>
+                <div class="gdd-active-card">
+                  <div class="gdd-file-info">
+                    <div class="gdd-file-icon">📋</div>
+                    <div>
+                      <div style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: #fff;">${escapeHtml(gdd.title)}</div>
+                      <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+                        FILENAME: ${escapeHtml(gdd.filename)} • SIZE: ${(gdd.file_size / (1024 * 1024)).toFixed(2)} MB
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <a href="${gdd.view_url}" target="_blank" class="btn-cyber btn-cyber-primary">READ GAME DESIGN DOCUMENT (PDF)</a>
+                  </div>
+                </div>
+              </section>
+            ` : ''}
+
+            <!-- Recruiter Contact Footer -->
+            <footer style="margin-top: 60px; padding: 30px; text-align: center; border-top: 1px solid var(--border-subtle); background: var(--bg-core); border-radius: var(--radius-md);">
+              <div style="font-family: var(--font-display); font-size: 1.1rem; color: #fff; letter-spacing: 1px;">
+                INTERESTED IN COLLABORATING WITH ${escapeHtml(p.profile_name || USERNAME).toUpperCase()}?
+              </div>
+              <div style="margin-top: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                Connect via professional channels listed above.
+              </div>
+              <div style="margin-top: 20px;">
+                <a href="/" class="btn-cyber btn-cyber-sm">CREATE YOUR GAMEDEV PORTFOLIO ON GAMEDEV JOURNEY</a>
+              </div>
+            </footer>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('public-portfolio-content').innerHTML = `
+          <div class="cyber-card" style="max-width: 500px; margin: 80px auto; text-align: center;">
+            <div style="color: var(--neon-danger); font-size: 2rem;">⚠️</div>
+            <div style="font-family: var(--font-display); font-size: 1.2rem; color: #fff; margin-top: 10px;">FAILED TO RETRIEVE DOSSIER</div>
+            <div style="color: var(--text-secondary); margin: 10px 0 20px;">${escapeHtml(err.message)}</div>
+            <a href="/" class="btn-cyber btn-cyber-primary">GO HOME</a>
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPublicProfile);
+  </script>
+  {% endif %}
+</body>
+</html>

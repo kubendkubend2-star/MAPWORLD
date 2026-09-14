@@ -1,0 +1,166 @@
+/**
+ * GAMEDEV JOURNEY 2.0 - Live Cyber Portfolio Stylesheet
+ * Renders the user's authentic profile in full AAA futuristic gaming glory
+ */
+
+.portfolio-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* Hero Dossier Banner */
+.portfolio-hero {
+  background: linear-gradient(135deg, rgba(15, 21, 35, 0.9), rgba(18, 26, 43, 0.95));
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 35px rgba(0, 243, 255, 0.15);
+  margin-bottom: 40px;
+}
+
+.portfolio-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-green));
+}
+
+.portfolio-hero-content {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+.portfolio-avatar-frame {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid var(--neon-cyan);
+  box-shadow: var(--neon-cyan-glow);
+  background: var(--bg-core);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.portfolio-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portfolio-dev-meta {
+  flex: 1;
+}
+
+.portfolio-dev-name {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+}
+
+.portfolio-dev-title {
+  font-family: var(--font-sub);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--neon-cyan);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.portfolio-dev-goal {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  max-width: 680px;
+}
+
+.portfolio-social-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.portfolio-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: var(--font-sub);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.portfolio-social-link:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan-dim);
+}
+
+/* Portfolio Section Titles */
+.portfolio-section {
+  margin-bottom: 50px;
+}
+
+.portfolio-section-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #fff;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.portfolio-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border-subtle), transparent);
+}
+
+/* Portfolio About Card */
+.portfolio-about-card {
+  background: var(--bg-glass-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+/* Empty Cyber Slot Placeholder */
+.cyber-empty-slot {
+  background: rgba(15, 21, 35, 0.4);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}

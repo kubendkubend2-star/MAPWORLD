@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="avatarBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090c14" />
+      <stop offset="100%" stop-color="#161e31" />
+    </linearGradient>
+    <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f3ff" />
+      <stop offset="100%" stop-color="#b026ff" />
+    </linearGradient>
+  </defs>
+  <!-- Background Disc -->
+  <circle cx="100" cy="100" r="95" fill="url(#avatarBg)" stroke="#00f3ff" stroke-width="2" />
+  <!-- HUD Reticle Rings -->
+  <circle cx="100" cy="100" r="85" stroke="rgba(0, 243, 255, 0.2)" stroke-width="1" stroke-dasharray="4 6" />
+  <circle cx="100" cy="100" r="70" stroke="rgba(176, 38, 255, 0.25)" stroke-width="1" stroke-dasharray="10 15" />
+  <!-- Shoulders / Cyber Armor Silhouette -->
+  <path d="M40 185 C40 145 70 135 100 135 C130 135 160 145 160 185 Z" fill="#0f1523" stroke="#00f3ff" stroke-width="1.5" />
+  <!-- Head Silhouette -->
+  <path d="M75 95 C75 60 85 45 100 45 C115 45 125 60 125 95 C125 120 115 132 100 132 C85 132 75 120 75 95 Z" fill="#161e31" stroke="#94a3b8" stroke-width="1.5" />
+  <!-- Cybernetic Visor -->
+  <path d="M72 80 H128 V94 H72 Z" rx="4" fill="url(#neonGlow)" />
+  <line x1="72" y1="87" x2="128" y2="87" stroke="#ffffff" stroke-width="1.5" opacity="0.8" />
+  <!-- Tactical Crosshairs -->
+  <line x1="100" y1="10" x2="100" y2="25" stroke="#00f3ff" stroke-width="2" />
+  <line x1="100" y1="175" x2="100" y2="190" stroke="#00f3ff" stroke-width="2" />
+  <line x1="10" y1="100" x2="25" y2="100" stroke="#00f3ff" stroke-width="2" />
+  <line x1="175" y1="100" x2="190" y2="100" stroke="#00f3ff" stroke-width="2" />
+</svg>
